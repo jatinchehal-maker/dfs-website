@@ -1,41 +1,73 @@
--- DFS website: run once in Supabase → SQL Editor → Run.
--- Passwords are stored only by Supabase Auth (hashed). This file never touches them.
+-- DFS website database, matching the live Supabase project (dfs-website, Canada Central).
+-- Passwords are stored only by Supabase Auth (hashed). Re-runnable on a fresh project via SQL Editor.
+
+create schema if not exists private;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   full_name text,
   role text not null default 'worker' check (role in ('worker', 'client', 'admin')),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 alter table public.profiles enable row level security;
 
--- Each user can read only their own profile.
-drop policy if exists "Read own profile" on public.profiles;
-create policy "Read own profile" on public.profiles
-  for select to authenticated using ((select auth.uid()) = id);
-
--- Each user can update only their own profile, and cannot change their own role.
-drop policy if exists "Update own profile" on public.profiles;
-create policy "Update own profile" on public.profiles
-  for update to authenticated
-  using ((select auth.uid()) = id)
-  with check ((select auth.uid()) = id and role = (select p.role from public.profiles p where p.id = (select auth.uid())));
-
--- Create the profile automatically when someone signs up.
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer set search_path = ''
-as $$
+CREATE OR REPLACE FUNCTION private.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
 begin
   insert into public.profiles (id, full_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'full_name', ''));
+  values (new.id, nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''));
   return new;
 end;
-$$;
+$function$;
+CREATE OR REPLACE FUNCTION private.is_admin()
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+  select exists (
+    select 1 from public.profiles
+    where id = (select auth.uid()) and role = 'admin'
+  );
+$function$;
+CREATE OR REPLACE FUNCTION private.profiles_before_update()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+begin
+  if new.role is distinct from old.role
+     and coalesce(auth.role(), '') <> 'service_role'
+     and not private.is_admin() then
+    raise exception 'Only an admin can change roles';
+  end if;
+  if new.id is distinct from old.id then
+    raise exception 'Profile id cannot be changed';
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$function$;
+
+drop policy if exists "Read own profile, admins read all" on public.profiles;
+create policy "Read own profile, admins read all" on public.profiles
+  for select to authenticated
+  using (((( SELECT auth.uid() AS uid) = id) OR ( SELECT private.is_admin() AS is_admin)));
+drop policy if exists "Update own profile, admins update all" on public.profiles;
+create policy "Update own profile, admins update all" on public.profiles
+  for update to authenticated
+  using (((( SELECT auth.uid() AS uid) = id) OR ( SELECT private.is_admin() AS is_admin)))
+  with check (((( SELECT auth.uid() AS uid) = id) OR ( SELECT private.is_admin() AS is_admin)));
+
+drop trigger if exists profiles_before_update on public.profiles;
+create trigger profiles_before_update before update on public.profiles for each row execute function private.profiles_before_update();
 
 drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
+create trigger on_auth_user_created after insert on auth.users for each row execute function private.handle_new_user();
