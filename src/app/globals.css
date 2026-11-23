@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-archivo);
+  --font-display: var(--font-big-shoulders), var(--font-archivo), sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { background: #ffffff; color: #000000; }
+
+/* Visible keyboard focus */
+:focus-visible { outline: 3px solid #000000; outline-offset: 3px; border-radius: 6px; }
+.bg-black :focus-visible, footer :focus-visible { outline-color: #ffffff; }
+
+/* Hero logo spotlight effect (CSS variables set by InteractiveLogo) */
+.logo-stage { --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg; --spot: 0; perspective: 1000px; }
+.logo-tilt { transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform 0.3s ease-out; }
+.logo-base { opacity: 0.22; }
+.logo-lit {
+  -webkit-mask-image: radial-gradient(circle 180px at var(--mx) var(--my), #000 0%, transparent 100%);
+  mask-image: radial-gradient(circle 180px at var(--mx) var(--my), #000 0%, transparent 100%);
+  opacity: var(--spot);
+  transition: opacity 0.4s ease;
+}
+.logo-stage[data-static="true"] .logo-base { opacity: 1; }
+.logo-stage[data-static="true"] .logo-lit,
+.logo-stage[data-static="true"] .logo-hint { display: none; }
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 35s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .logo-tilt { transform: none; transition: none; }
+  .animate-marquee { animation: none; }
+}
+
+/* Liquid hero: match the site's bold uppercase headings */
+.uppercase-heading .sh-h1 { text-transform: uppercase; font-weight: 800; letter-spacing: -0.01em; }
+
+/* French: hide the page until the translation is applied (boot script sets data-lang) */
+html[data-lang="fr"]:not([data-translated]) body { visibility: hidden; }
+
+/* How it works folders: black & white art that turns to colour on hover, like the photos */
+.dfs-folders .gf-root .gf-art[data-ready], .dfs-folders .gf-root img.gf-art { filter: grayscale(1) contrast(1.05); transition: filter .5s ease, opacity .5s ease; }
+.dfs-folders .gf-root:hover .gf-art[data-ready], .dfs-folders .gf-root:focus-within .gf-art[data-ready] { filter: none; }
+@media (prefers-reduced-motion: reduce) { .dfs-folders .gf-art { transition: none; } }
+
+/* Notched card: inverse corner that rounds the joins between photo and notch */
+.notch-curve { background: radial-gradient(circle at 0 0, transparent calc(var(--r) - 0.5px), var(--surface) var(--r)); }
