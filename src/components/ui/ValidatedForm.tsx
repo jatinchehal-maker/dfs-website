@@ -18,7 +18,7 @@ type Props = {
 
 const SEND_ERROR = "We couldn't send your form. Please try again, or email us at";
 
-// Checks the answers in the browser, then sends them to /api/form, which checks again and saves them to the sheet.
+// Checks the answers in the browser, then sends them to /forms/submit, which checks again and saves them to the sheet.
 export default function ValidatedForm({ formId, fields, submitLabel, successTitle, successBody, job }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "failed">("idle");
@@ -32,7 +32,7 @@ export default function ValidatedForm({ formId, fields, submitLabel, successTitl
 
     setStatus("sending");
     try {
-      const res = await fetch("/api/form", { method: "POST", body: data });
+      const res = await fetch("/forms/submit", { method: "POST", body: data });
       const out = (await res.json().catch(() => ({}))) as { ok?: boolean; errors?: Record<string, string> };
       if (out.errors) { setErrors(out.errors); setStatus("idle"); return; }
       setStatus(res.ok && out.ok ? "sent" : "failed");
