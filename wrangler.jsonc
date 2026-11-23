@@ -6,10 +6,12 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "dfs-website" }],
-  // The official domains. Cloudflare creates the DNS records for these on deploy.
+  // The official domains. Routes send all traffic for these (proxied) hostnames to this Worker.
+  // To roll back to the previous site: delete these routes in Cloudflare → Workers → dfs-website → Settings → Domains & Routes.
   "routes": [
-    { "pattern": "deltafacilitiessolutions.com", "custom_domain": true },
-    { "pattern": "www.deltafacilitiessolutions.com", "custom_domain": true }
+    { "pattern": "deltafacilitiessolutions.com/*", "zone_name": "deltafacilitiessolutions.com" },
+    { "pattern": "www.deltafacilitiessolutions.com/*", "zone_name": "deltafacilitiessolutions.com" }
   ],
+  "workers_dev": true,
   "observability": { "enabled": true }
 }
