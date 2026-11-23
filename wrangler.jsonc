@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dfs-website",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "dfs-website" }],
+  // The official domains. Cloudflare creates the DNS records for these on deploy.
+  "routes": [
+    { "pattern": "deltafacilitiessolutions.com", "custom_domain": true },
+    { "pattern": "www.deltafacilitiessolutions.com", "custom_domain": true }
+  ],
+  "observability": { "enabled": true }
+}
