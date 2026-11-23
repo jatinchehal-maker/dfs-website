@@ -6,6 +6,7 @@ import { LiquidNavbar, NimbusIcons, type LiquidNavItem } from "@/components/ui/l
 import Logo from "@/components/ui/Logo";
 import ButtonLink from "@/components/ui/ButtonLink";
 import LanguageToggle from "@/components/LanguageToggle";
+import AuthLinks from "@/components/auth/AuthLinks";
 import { HEADER, NAV } from "@/content/site";
 
 const TOP_NAV: LiquidNavItem[] = [
@@ -38,7 +39,7 @@ export default function Header() {
 
         <div className="hidden items-center gap-3 xl:flex">
           <LanguageToggle />
-          <Link href={HEADER.login.href} className="px-2 text-sm font-medium hover:underline">{HEADER.login.label}</Link>
+          <AuthLinks />
           <ButtonLink href={HEADER.cta.href} className="py-2.5">{HEADER.cta.label}</ButtonLink>
         </div>
 
@@ -71,7 +72,7 @@ export default function Header() {
             )}
           </ul>
           <div className="mt-4 flex items-center justify-between">
-            <Link href={HEADER.login.href} onClick={closeMenu} className="text-sm font-medium">{HEADER.login.label}</Link>
+            <AuthLinks onNavigate={closeMenu} />
             <LanguageToggle className="py-1" />
           </div>
           <ButtonLink href={HEADER.cta.href} className="mt-5 w-full">{HEADER.cta.label}</ButtonLink>

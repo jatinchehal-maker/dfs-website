@@ -16,7 +16,7 @@ export default function CareersPage() {
         <ButtonLink href="/jobs" variant="secondary" className="mt-8">See open jobs</ButtonLink>
         <div className="relative mt-10 h-72"><Image src="/images/forklift.jpg" alt="Forklift operator moving a pallet" fill className="rounded-2xl object-cover grayscale" sizes="(min-width: 1024px) 40vw, 100vw" /></div>
       </div>
-      <ValidatedForm fields={APPLICATION_FORM} submitLabel="Send application" successTitle="Application received" successBody="Thanks! DFS will contact you about upcoming shifts." />
+      <ValidatedForm formId="application" fields={APPLICATION_FORM} submitLabel="Send application" successTitle="Application received" successBody="Thanks! DFS will contact you about upcoming shifts." />
     </section>
   );
 }

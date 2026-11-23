@@ -37,7 +37,7 @@ export default async function JobPage({ params }: PageProps<"/jobs/[slug]">) {
         </div>
         <div>
           <h2 className="font-display mb-4 text-3xl font-bold uppercase">Apply for this job</h2>
-          <ValidatedForm fields={APPLICATION_FORM} submitLabel="Send application" successTitle="Application received" successBody="Thanks! DFS will contact you about this job." />
+          <ValidatedForm formId="application" job={`${job.title} — ${job.area}`} fields={APPLICATION_FORM} submitLabel="Send application" successTitle="Application received" successBody="Thanks! DFS will contact you about this job." />
         </div>
       </section>
       <section className="mx-auto max-w-6xl px-5 pb-20 sm:px-8">

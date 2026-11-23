@@ -23,7 +23,7 @@ export default function ContactPage() {
           <LocationMap location="Laval & Montréal, QC" coordinates="45.5500° N, 73.6400° W" className="pb-6" />
         </div>
       </div>
-      <ValidatedForm fields={CONSULTATION_FORM} submitLabel="Send request" successTitle="Request received" successBody="Thanks! We reply within one business day." />
+      <ValidatedForm formId="consultation" fields={CONSULTATION_FORM} submitLabel="Send request" successTitle="Request received" successBody="Thanks! We reply within one business day." />
     </section>
   );
 }
