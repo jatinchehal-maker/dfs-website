@@ -1,5 +1,4 @@
 "use server";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,11 +16,16 @@ function safeNext(value: string) {
   return value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard";
 }
 
+const PRODUCTION_ORIGIN = "https://deltafacilitiessolutions.com";
+const DEV_ORIGIN = "http://localhost:3000";
+
+/**
+ * Where email links (confirm account, reset password) send people.
+ * Never built from the request's Host header, which an attacker can set.
+ */
 async function siteOrigin() {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
+  if (process.env.SITE_URL) return process.env.SITE_URL.replace(/\/+$/, "");
+  return process.env.NODE_ENV === "production" ? PRODUCTION_ORIGIN : DEV_ORIGIN;
 }
 
 /** Turns Supabase errors into clear messages without leaking details. */

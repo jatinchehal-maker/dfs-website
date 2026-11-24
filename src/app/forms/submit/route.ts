@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { APPLICATION_FORM, CONSULTATION_FORM, type FormField } from "@/content/forms";
 import { validate } from "@/lib/validate";
+import { allowFormSubmit } from "@/lib/rate-limit";
 
 const FORMS: Record<string, FormField[]> = { application: APPLICATION_FORM, consultation: CONSULTATION_FORM };
 const MAX_FIELD = 5000; // characters per field
@@ -12,6 +13,7 @@ const reply = (body: Reply, status = 200) => NextResponse.json(body, { status })
 
 export async function POST(request: NextRequest) {
   if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY) return reply({ ok: false, error: "too_large" }, 413);
+  if (!(await allowFormSubmit(request))) return reply({ ok: false, error: "too_many" }, 429);
 
   let form: FormData;
   try { form = await request.formData(); } catch { return reply({ ok: false, error: "bad_request" }, 400); }
