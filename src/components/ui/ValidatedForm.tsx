@@ -25,6 +25,7 @@ export default function ValidatedForm({ formId, fields, submitLabel, successTitl
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (status === "sending") return; // Ignore a second click or Enter while the first send is in flight.
     const data = new FormData(event.currentTarget);
     const found = validate(data, fields);
     setErrors(found);
