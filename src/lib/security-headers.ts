@@ -18,11 +18,12 @@ export function contentSecurityPolicy(supabaseUrl?: string): string {
   const supabase = supabaseOrigin(supabaseUrl);
   const directives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    // static.cloudflareinsights.com: Cloudflare Web Analytics beacon, injected by Cloudflare.
+    "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://cdn.21st.dev",
-    `connect-src 'self'${supabase ? ` ${supabase}` : ""}`,
+    `connect-src 'self' https://cloudflareinsights.com${supabase ? ` ${supabase}` : ""}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

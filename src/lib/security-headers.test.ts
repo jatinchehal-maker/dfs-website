@@ -9,11 +9,17 @@ describe("security headers", () => {
   });
 
   test("allows only the Supabase origin for login calls", () => {
-    expect(contentSecurityPolicy("https://abc.supabase.co/rest/v1")).toContain("connect-src 'self' https://abc.supabase.co;");
+    expect(contentSecurityPolicy("https://abc.supabase.co/rest/v1")).toContain(
+      "connect-src 'self' https://cloudflareinsights.com https://abc.supabase.co;",
+    );
   });
 
   test("ignores an invalid Supabase URL", () => {
-    expect(contentSecurityPolicy("not a url")).toContain("connect-src 'self';");
+    expect(contentSecurityPolicy("not a url")).toContain("connect-src 'self' https://cloudflareinsights.com;");
+  });
+
+  test("allows the Cloudflare Web Analytics beacon", () => {
+    expect(contentSecurityPolicy()).toContain("script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com;");
   });
 
   test("includes HSTS, nosniff and DENY", () => {
